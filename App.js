@@ -2,6 +2,7 @@
 exports.__esModule = true;
 var express = require("express");
 var logger = require("morgan");
+var url = require("url");
 var bodyParser = require("body-parser");
 // Creates and configures an ExpressJS web server.
 var App = /** @class */ (function () {
@@ -26,6 +27,41 @@ var App = /** @class */ (function () {
         router.use(function (req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            next();
+        });
+        router.get('/one', function (req, res, next) {
+            res.send('request one');
+        });
+        router.get('/add', function (req, res, next) {
+            var urlParts = url.parse(req.url, true);
+            var query = urlParts.query;
+            console.log('var1:' + query.var1);
+            console.log('var2:' + query.var2);
+            var value1 = parseInt(query.var1);
+            var value2 = parseInt(query.var2);
+            var sum = value1 + value2;
+            //var sum = query.var1 + query.var2;
+            var msg = 'addition of ' + query.var1 + ' plus ' + query.var2 + ' equals ' + sum;
+            console.log(msg);
+            res.send(msg);
+        });
+        var fname2;
+        router.get('/name/:fname', function (req, res, next) {
+            var name;
+            console.log(':fname = ' + req.params.fname);
+            if (req.params.fname === 'israelh') {
+                name = fname2 + ' hilerio';
+            }
+            else {
+                name = fname2 + ' world';
+            }
+            console.log("Your name is: " + name);
+            res.send("Your name is: " + name);
+        });
+        router.param('fname', function (req, res, next, value) {
+            console.log('The param value is: ' + value);
+            fname2 = value + "-ABCD";
+            console.log('fname2:' + fname2);
             next();
         });
         this.express.use('/', router);
